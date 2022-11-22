@@ -55,6 +55,7 @@ namespace OnlineBankingApiService
 
                         // Add repositories
                         builder.Services.AddSingleton<IAccountRepository, AccountsCosmosDbRepository>();
+                        builder.Services.AddSingleton<IUserRepository, UsersCosmosDbRepository>();
                         
                         var app = builder.Build();
                         
@@ -70,8 +71,6 @@ namespace OnlineBankingApiService
                         app.MapControllers();
                         
                         return app;
-
-
                     }))
             };
         }
