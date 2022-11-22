@@ -1,4 +1,4 @@
-﻿using Bank;
+using Bank;
 using DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -8,18 +8,24 @@ namespace OnlineBankingApiService.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class BankController : ControllerBase
+    public class AccountsController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly ILogger<BankController> _logger;
+        private readonly ILogger<AccountsController> _logger;
 
-        public BankController(IAccountRepository accountRepository, ILogger<BankController> logger)
+        // Routes
+        private const string GetAllAccounts = "/accounts";
+        private const string GetAllAccountsByUserName = "/accounts/{userName}";
+        private const string PostCreateAccount = "/accounts";
+        private const string PutUpdateAccount = "/accounts/{id}";
+
+        public AccountsController(IAccountRepository accountRepository, ILogger<AccountsController> logger)
         {
             _accountRepository = accountRepository;
             _logger = logger;
         }
-
-        [HttpGet("/accounts", Name = nameof(GetAllAccountsAsync))]
+     
+        [HttpGet(GetAllAccounts, Name = nameof(GetAllAccountsAsync))]
         public async Task<IActionResult> GetAllAccountsAsync()
         {
             Result<List<Account>> getAllResult = await _accountRepository.GetAllAccountsAsync();
@@ -30,10 +36,42 @@ namespace OnlineBankingApiService.Controllers
             return Ok(getAllResult.Value);
         }
 
-        [HttpGet("/number2", Name = nameof(GetNumber2))]
-        public IActionResult GetNumber2()
+        [HttpGet(GetAllAccountsByUserName, Name = nameof(GetAllAccountsByUserNameAsync))]
+        public async Task<IActionResult> GetAllAccountsByUserNameAsync(string userName)
         {
-            return Ok(5);
+            Result<List<Account>> getAllByUserNameResult = await _accountRepository.GetAllByUsernameAsync(userName);
+            if (getAllByUserNameResult.Succeeded == false)
+            {
+                return BadRequest();
+            }
+            return Ok(getAllByUserNameResult.Value);
+        }
+
+        [HttpPost(PostCreateAccount, Name = nameof(PostCreateAccountAsync))]
+        public async Task<IActionResult> PostCreateAccountAsync([FromBody] Account account)
+        {
+            Result<Account> createResult = await _accountRepository.CreateAccountAsync(account);
+            if (createResult.Succeeded == false)
+            {
+                return BadRequest();
+            }
+            return Ok(createResult.Value);
+        }
+
+        [HttpPut(PutUpdateAccount, Name = nameof(PutUpdateAccountAsync))]
+        public async Task<IActionResult> PutUpdateAccountAsync(string id, [FromBody] Account account)
+        {
+            if(id != account.Id)
+            {
+                return BadRequest("Parameter 'id' does not match id from request body");
+            }
+
+            Result<Account> updateResult = await _accountRepository.UpdateAccountAsync(account);
+            if (updateResult.Succeeded == false)
+            {
+                return BadRequest();
+            }
+            return Ok(updateResult.Value);
         }
     }
 }
