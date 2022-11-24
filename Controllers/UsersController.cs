@@ -3,6 +3,7 @@ using DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Models;
+using System.Runtime.CompilerServices;
 
 namespace OnlineBankingApiService.Controllers
 {
@@ -16,6 +17,8 @@ namespace OnlineBankingApiService.Controllers
         // Routes
         private const string GetAllUsers = "/users";
         private const string GetUserByUserName = "/users/{userName}";
+        private const string PostCreateUser = "/users";
+        private const string PutUpdateUser = "/users/{id}";
 
         public UsersController(IUserRepository userRepository)
         {
@@ -42,6 +45,33 @@ namespace OnlineBankingApiService.Controllers
                 return BadRequest();
             }
             return Ok(getResult.Value);
+        }
+
+        [HttpPost(PostCreateUser, Name = nameof(PostCreateUserAsync))]
+        public async Task<IActionResult> PostCreateUserAsync([FromBody] BankUser user)
+        {
+            Result<BankUser> getResult = await _userRepository.CreateUserAsync(user);
+            if (getResult.Succeeded == false)
+            {
+                return BadRequest();
+            }
+            return Ok(getResult.Value);
+        }
+
+        [HttpPut(PutUpdateUser, Name = nameof(PutUpdateUserAsync))]
+        public async Task<IActionResult> PutUpdateUserAsync(string id, [FromBody] BankUser user)
+        {
+            if (id != user.Id)
+            {
+                return BadRequest("Parameter 'id' does not match id from request body");
+            }
+
+            Result<BankUser> updateResult = await _userRepository.UpdateUserAsync(user);
+            if (updateResult.Succeeded == false)
+            {
+                return BadRequest();
+            }
+            return Ok(updateResult.Value);
         }
     }
 }
