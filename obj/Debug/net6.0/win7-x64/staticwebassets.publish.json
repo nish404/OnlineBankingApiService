@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "93tRrwYUCnIWA6t+cSaChiWWj+6iJyhjtIfrrAsPSBQ=",
+  "Source": "OnlineBankingApiService",
+  "BasePath": "_content/OnlineBankingApiService",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
