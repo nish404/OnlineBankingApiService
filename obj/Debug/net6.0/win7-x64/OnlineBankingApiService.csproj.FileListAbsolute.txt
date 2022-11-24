@@ -1,0 +1,7 @@
+C:\Users\nishriddick.NORTHAMERICA\OnlineBankingApiService\obj\Debug\net6.0\win7-x64\OnlineBankingApiService.csproj.AssemblyReference.cache
+C:\Users\nishriddick.NORTHAMERICA\OnlineBankingApiService\obj\Debug\net6.0\win7-x64\OnlineBankingApiService.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\nishriddick.NORTHAMERICA\OnlineBankingApiService\obj\Debug\net6.0\win7-x64\OnlineBankingApiService.AssemblyInfoInputs.cache
+C:\Users\nishriddick.NORTHAMERICA\OnlineBankingApiService\obj\Debug\net6.0\win7-x64\OnlineBankingApiService.AssemblyInfo.cs
+C:\Users\nishriddick.NORTHAMERICA\OnlineBankingApiService\obj\Debug\net6.0\win7-x64\OnlineBankingApiService.csproj.CoreCompileInputs.cache
+C:\Users\nishriddick.NORTHAMERICA\OnlineBankingApiService\obj\Debug\net6.0\win7-x64\OnlineBankingApiService.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\nishriddick.NORTHAMERICA\OnlineBankingApiService\obj\Debug\net6.0\win7-x64\OnlineBankingApiService.MvcApplicationPartsAssemblyInfo.cache
