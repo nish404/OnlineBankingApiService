@@ -2,8 +2,8 @@ using Bank;
 using DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Microsoft.IdentityModel.Tokens;
 using Models;
-using System.Runtime.CompilerServices;
 
 namespace OnlineBankingApiService.Controllers
 {
@@ -50,12 +50,12 @@ namespace OnlineBankingApiService.Controllers
         [HttpPost(PostCreateUser, Name = nameof(PostCreateUserAsync))]
         public async Task<IActionResult> PostCreateUserAsync([FromBody] BankUser user)
         {
-            Result<BankUser> getResult = await _userRepository.CreateUserAsync(user);
-            if (getResult.Succeeded == false)
+            Result<BankUser> createResult = await _userRepository.CreateUserAsync(user);
+            if (createResult.Succeeded == false)
             {
                 return BadRequest();
             }
-            return Ok(getResult.Value);
+            return Ok(createResult.Value);
         }
 
         [HttpPut(PutUpdateUser, Name = nameof(PutUpdateUserAsync))]
