@@ -18,6 +18,7 @@ namespace OnlineBankingApiService.Controllers
         private const string GetAllAccountsByUserName = "/accounts/{userName}";
         private const string PostCreateAccount = "/accounts";
         private const string PutUpdateAccount = "/accounts/{id}";
+        private const string DeleteAccount = "/accounts/{userName}/{id}";
 
         public AccountsController(IAccountRepository accountRepository, ILogger<AccountsController> logger)
         {
@@ -72,6 +73,17 @@ namespace OnlineBankingApiService.Controllers
                 return BadRequest();
             }
             return Ok(updateResult.Value);
+        }
+
+        [HttpDelete(DeleteAccount, Name = nameof(DeleteUserAccountAsync))]
+        public async Task<IActionResult> DeleteUserAccountAsync(string userName, string id)
+        {
+            Result<Account> deleteResult = await _accountRepository.DeleteAccountAsync(id, userName);
+            if (deleteResult.Succeeded == false)
+            {
+                return BadRequest();
+            }
+            return Ok(deleteResult.Value);
         }
     }
 }
