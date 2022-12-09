@@ -2,6 +2,7 @@ using Bank;
 using DataAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using Models;
 
@@ -19,6 +20,7 @@ namespace OnlineBankingApiService.Controllers
         private const string GetUserByUserName = "/users/{userName}";
         private const string PostCreateUser = "/users";
         private const string PutUpdateUser = "/users/{id}";
+        private const string DeleteBankUser = "/users/{id}";
 
         public UsersController(IUserRepository userRepository)
         {
@@ -31,7 +33,19 @@ namespace OnlineBankingApiService.Controllers
             Result<List<BankUser>> getAllResult = await _userRepository.GetAllUsersAsync();
             if (getAllResult.Succeeded == false)
             {
-                return BadRequest();
+                switch (getAllResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(getAllResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(getAllResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(getAllResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
             return Ok(getAllResult.Value);
         }
@@ -42,7 +56,19 @@ namespace OnlineBankingApiService.Controllers
             Result<BankUser> getResult = await _userRepository.GetByUserNameAsync(userName);
             if (getResult.Succeeded == false)
             {
-                return BadRequest();
+                switch (getResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(getResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(getResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(getResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
             return Ok(getResult.Value);
         }
@@ -53,7 +79,19 @@ namespace OnlineBankingApiService.Controllers
             Result<BankUser> createResult = await _userRepository.CreateUserAsync(user);
             if (createResult.Succeeded == false)
             {
-                return BadRequest();
+                switch (createResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(createResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(createResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(createResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
             return Ok(createResult.Value);
         }
@@ -69,9 +107,46 @@ namespace OnlineBankingApiService.Controllers
             Result<BankUser> updateResult = await _userRepository.UpdateUserAsync(user);
             if (updateResult.Succeeded == false)
             {
-                return BadRequest();
+                switch (updateResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(updateResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(updateResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(updateResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
             return Ok(updateResult.Value);
+        }
+
+        [HttpDelete(DeleteBankUser, Name = nameof(DeleteBankUserAsync))]
+        public async Task<IActionResult> DeleteBankUserAsync(string userName, string id)
+        {
+            Result<BankUser> deleteResult = await _userRepository.DeleteUserAsync(userName, id);            {
+                if (deleteResult.Succeeded == false)
+                {
+                    switch (deleteResult.ResultType)
+                    {
+                        case ResultType.NotFound:
+                            return NotFound();
+                        case ResultType.InvalidData:
+                            return BadRequest(deleteResult.Message);
+                        case ResultType.DataStoreError:
+                            // something went wrong
+                            return Conflict(deleteResult.Message);
+                        case ResultType.Duplicate:
+                            return Conflict(deleteResult.Message);
+                        default:
+                            return StatusCode(500);
+                    }
+                }
+                return Ok(deleteResult.Value);
+            }
         }
     }
 }
