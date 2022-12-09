@@ -30,9 +30,21 @@ namespace OnlineBankingApiService.Controllers
         public async Task<IActionResult> GetAllAccountsAsync()
         {
             Result<List<Account>> getAllResult = await _accountRepository.GetAllAccountsAsync();
-            if(getAllResult.Succeeded == false)
+            if (getAllResult.Succeeded == false)
             {
-                return BadRequest();
+                switch (getAllResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(getAllResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(getAllResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(getAllResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
             return Ok(getAllResult.Value);
         }
@@ -43,7 +55,19 @@ namespace OnlineBankingApiService.Controllers
             Result<List<Account>> getAllByUserNameResult = await _accountRepository.GetAllByUsernameAsync(userName);
             if (getAllByUserNameResult.Succeeded == false)
             {
-                return BadRequest();
+                switch (getAllByUserNameResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(getAllByUserNameResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(getAllByUserNameResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(getAllByUserNameResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
             return Ok(getAllByUserNameResult.Value);
         }
@@ -54,7 +78,19 @@ namespace OnlineBankingApiService.Controllers
             Result<Account> createResult = await _accountRepository.CreateAccountAsync(account);
             if (createResult.Succeeded == false)
             {
-                return BadRequest();
+                switch (createResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(createResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(createResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(createResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
             return Ok(createResult.Value);
         }
@@ -70,7 +106,19 @@ namespace OnlineBankingApiService.Controllers
             Result<Account> updateResult = await _accountRepository.UpdateAccountAsync(account);
             if (updateResult.Succeeded == false)
             {
-                return BadRequest();
+                switch (updateResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(updateResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(updateResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(updateResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
             return Ok(updateResult.Value);
         }
@@ -81,7 +129,19 @@ namespace OnlineBankingApiService.Controllers
             Result<Account> deleteResult = await _accountRepository.DeleteAccountAsync(id, userName);
             if (deleteResult.Succeeded == false)
             {
-                return BadRequest();
+                switch (deleteResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(deleteResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(deleteResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(deleteResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
             }
             return Ok(deleteResult.Value);
         }
