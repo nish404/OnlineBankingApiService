@@ -16,6 +16,7 @@ namespace OnlineBankingApiService.Controllers
         // Routes
         private const string GetAllAccounts = "/accounts";
         private const string GetAllAccountsByUserName = "/accounts/{userName}";
+        private const string GetAccount = "/accounts/{userName}/{id}";
         private const string PostCreateAccount = "/accounts";
         private const string PutUpdateAccount = "/accounts/{id}";
         private const string DeleteAccount = "/accounts/{userName}/{id}";
@@ -25,7 +26,30 @@ namespace OnlineBankingApiService.Controllers
             _accountRepository = accountRepository;
             _logger = logger;
         }
-     
+
+        [HttpGet(GetAccount, Name = nameof(GetAccountAsync))]
+        public async Task<IActionResult> GetAccountAsync(string userName, string id)
+        {
+            Result<Account> getAcount = await _accountRepository.GetByIdAsync(id);
+            if (getAcount.Succeeded == false)
+            {
+                switch (getAcount.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(getAcount.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(getAcount.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(getAcount.Message);
+                    default:
+                        return StatusCode(500);
+                }
+            }
+            return Ok(getAcount.Value);
+        }
+
         [HttpGet(GetAllAccounts, Name = nameof(GetAllAccountsAsync))]
         public async Task<IActionResult> GetAllAccountsAsync()
         {
@@ -132,7 +156,7 @@ namespace OnlineBankingApiService.Controllers
                 switch (deleteResult.ResultType)
                 {
                     case ResultType.NotFound:
-                        return NotFound();
+                        return NotFound(deleteResult.Message);
                     case ResultType.InvalidData:
                         return BadRequest(deleteResult.Message);
                     case ResultType.DataStoreError:
