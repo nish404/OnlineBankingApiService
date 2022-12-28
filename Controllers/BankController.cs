@@ -30,24 +30,24 @@ namespace OnlineBankingApiService.Controllers
         [HttpGet(GetAccount, Name = nameof(GetAccountAsync))]
         public async Task<IActionResult> GetAccountAsync(string userName, string id)
         {
-            Result<Account> getAcount = await _accountRepository.GetByIdAsync(id);
-            if (getAcount.Succeeded == false)
+            Result<Account> getAccount = await _accountRepository.GetByIdAsync(id);
+            if (getAccount.Succeeded == false)
             {
-                switch (getAcount.ResultType)
+                switch (getAccount.ResultType)
                 {
                     case ResultType.NotFound:
-                        return NotFound();
+                        return NotFound(getAccount.Message);
                     case ResultType.InvalidData:
-                        return BadRequest(getAcount.Message);
+                        return BadRequest(getAccount.Message);
                     case ResultType.DataStoreError:
-                        return Conflict(getAcount.Message);
+                        return Conflict(getAccount.Message);
                     case ResultType.Duplicate:
-                        return Conflict(getAcount.Message);
+                        return Conflict(getAccount.Message);
                     default:
                         return StatusCode(500);
                 }
             }
-            return Ok(getAcount.Value);
+            return Ok(getAccount.Value);
         }
 
         [HttpGet(GetAllAccounts, Name = nameof(GetAllAccountsAsync))]
