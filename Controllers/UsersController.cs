@@ -5,6 +5,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using Models;
+using System.Security.Principal;
 
 namespace OnlineBankingApiService.Controllers
 {
@@ -18,13 +19,37 @@ namespace OnlineBankingApiService.Controllers
         // Routes
         private const string GetAllUsers = "/users";
         private const string GetUserByUserName = "/users/{userName}";
+        private const string GetUser = "/users/{userName}/{id}";
         private const string PostCreateUser = "/users";
         private const string PutUpdateUser = "/users/{id}";
-        private const string DeleteBankUser = "/users/{id}";
+        private const string DeleteBankUser = "/users/{userName}/{id}";
 
         public UsersController(IUserRepository userRepository)
         {
             _userRepository = userRepository;
+        }
+
+        [HttpGet(GetUser, Name = nameof(GetUserAsync))]
+        public async Task<IActionResult> GetUserAsync(string userName, string id)
+        {
+            Result<BankUser> getUser = await _userRepository.GetByIdAsync(id);
+            if (getUser.Succeeded == false)
+            {
+                switch (getUser.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound(getUser.Message);
+                    case ResultType.InvalidData:
+                        return BadRequest(getUser.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(getUser.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(getUser.Message);
+                    default:
+                        return StatusCode(500);
+                }
+            }
+            return Ok(getUser.Value);
         }
 
         [HttpGet(GetAllUsers, Name = nameof(GetAllUsersAsync))]
@@ -127,26 +152,24 @@ namespace OnlineBankingApiService.Controllers
         [HttpDelete(DeleteBankUser, Name = nameof(DeleteBankUserAsync))]
         public async Task<IActionResult> DeleteBankUserAsync(string userName, string id)
         {
-            Result<BankUser> deleteResult = await _userRepository.DeleteUserAsync(userName, id);            {
-                if (deleteResult.Succeeded == false)
+            Result<BankUser> deleteResult = await _userRepository.DeleteUserAsync(userName, id);            
+            if (deleteResult.Succeeded == false)
+            {
+                switch (deleteResult.ResultType)
                 {
-                    switch (deleteResult.ResultType)
-                    {
-                        case ResultType.NotFound:
-                            return NotFound();
-                        case ResultType.InvalidData:
-                            return BadRequest(deleteResult.Message);
-                        case ResultType.DataStoreError:
-                            // something went wrong
-                            return Conflict(deleteResult.Message);
-                        case ResultType.Duplicate:
-                            return Conflict(deleteResult.Message);
-                        default:
-                            return StatusCode(500);
-                    }
+                    case ResultType.NotFound:
+                        return NotFound(deleteResult.Message);
+                    case ResultType.InvalidData:
+                        return BadRequest(deleteResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(deleteResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(deleteResult.Message);
+                    default:
+                        return StatusCode(500);
                 }
-                return Ok(deleteResult.Value);
             }
+            return Ok(deleteResult.Value);
         }
     }
 }
