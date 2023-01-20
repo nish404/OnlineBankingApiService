@@ -1,7 +1,8 @@
 using Bank;
 using DataAccess;
+using Logic;
 using Microsoft.AspNetCore.Mvc;
-using Models;
+using OnlineBankingProject.Common.Models;
 using System.Collections.Generic;
 
 namespace OnlineBankingApiService.Controllers
@@ -10,6 +11,7 @@ namespace OnlineBankingApiService.Controllers
     [Route("[controller]")]
     public class AccountsController : ControllerBase
     {
+        private readonly IAccountLogic _accountLogic;
         private readonly IAccountRepository _accountRepository;
         private readonly ILogger<AccountsController> _logger;
 
@@ -20,9 +22,11 @@ namespace OnlineBankingApiService.Controllers
         private const string PostCreateAccount = "/accounts";
         private const string PutUpdateAccount = "/accounts/{id}";
         private const string DeleteAccount = "/accounts/{userName}/{id}";
+        private const string PutWithdraw = "/accounts/{userName}/{id}/withdraw";
 
-        public AccountsController(IAccountRepository accountRepository, ILogger<AccountsController> logger)
+        public AccountsController(IAccountLogic accountLogic, IAccountRepository accountRepository, ILogger<AccountsController> logger)
         {
+            _accountLogic = accountLogic;
             _accountRepository = accountRepository;
             _logger = logger;
         }
@@ -168,6 +172,33 @@ namespace OnlineBankingApiService.Controllers
                 }
             }
             return Ok(deleteResult.Value);
+        }
+
+        [HttpPut(PutWithdraw, Name = nameof(PutWithdraw))]
+        public async Task<IActionResult> PutWithdrawAsync(string userName, string id, [FromBody] AccountWithdrawRequest accountWithdrawRequest)
+        {
+            if(accountWithdrawRequest == null)
+            {
+                return BadRequest("Invalid or missing accountWithdrawRequest");
+            }
+            Result<Account> withDrawResult = await _accountLogic.WithdrawAmount(id, accountWithdrawRequest.pin, accountWithdrawRequest.amount);
+            if (withDrawResult.Succeeded == false)
+            {
+                switch (withDrawResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound(withDrawResult.Message);
+                    case ResultType.InvalidData:
+                        return BadRequest(withDrawResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(withDrawResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(withDrawResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
+            }
+            return Ok(withDrawResult.Value);
         }
     }
 }
