@@ -12,6 +12,7 @@ using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Data;
 using DataAccess;
+using Logic;
 
 namespace OnlineBankingApiService
 {
@@ -57,6 +58,9 @@ namespace OnlineBankingApiService
                         builder.Services.AddSingleton<IAccountRepository, AccountsCosmosDbRepository>();
                         builder.Services.AddSingleton<IUserRepository, UsersCosmosDbRepository>();
                         
+                        // Add logic
+                        builder.Services.AddSingleton<IAccountLogic, AccountLogic>();
+
                         var app = builder.Build();
                         
                         // Configure the HTTP request pipeline.
