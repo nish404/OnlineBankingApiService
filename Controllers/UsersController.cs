@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
-using Models;
+using OnlineBankingProject.Common.Models;
 using System.Security.Principal;
 
 namespace OnlineBankingApiService.Controllers
