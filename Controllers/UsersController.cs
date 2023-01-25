@@ -152,7 +152,7 @@ namespace OnlineBankingApiService.Controllers
         [HttpDelete(DeleteBankUser, Name = nameof(DeleteBankUserAsync))]
         public async Task<IActionResult> DeleteBankUserAsync(string userName, string id)
         {
-            Result<BankUser> deleteResult = await _userRepository.DeleteUserAsync(userName, id);            
+            Result<BankUser> deleteResult = await _userRepository.DeleteUserAsync(userName, id);
             if (deleteResult.Succeeded == false)
             {
                 switch (deleteResult.ResultType)
