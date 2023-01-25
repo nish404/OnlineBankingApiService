@@ -23,6 +23,7 @@ namespace OnlineBankingApiService.Controllers
         private const string PutUpdateAccount = "/accounts/{id}";
         private const string DeleteAccount = "/accounts/{userName}/{id}";
         private const string PutWithdraw = "/accounts/{userName}/{id}/withdraw";
+        private const string PutDeposit = "/accounts/{userName}/{id}/deposit";
 
         public AccountsController(IAccountLogic accountLogic, IAccountRepository accountRepository, ILogger<AccountsController> logger)
         {
@@ -199,6 +200,33 @@ namespace OnlineBankingApiService.Controllers
                 }
             }
             return Ok(withDrawResult.Value);
+        }
+
+        [HttpPut(PutDeposit, Name = nameof(PutDeposit))]
+        public async Task<IActionResult> PutDepositAsync(string userName, string id, [FromBody] AccountDepositRequest accountDepositRequest)
+        {
+            if (accountDepositRequest == null)
+            {
+                return BadRequest("Invalid or missing accountDepositRequest");
+            }
+            Result<Account> depositResult = await _accountLogic.DepositAmount(id, accountDepositRequest.amount, accountDepositRequest.accountNumber);
+            if (depositResult.Succeeded == false)
+            {
+                switch (depositResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound(depositResult.Message);
+                    case ResultType.InvalidData:
+                        return BadRequest(depositResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(depositResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(depositResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
+            }
+            return Ok(depositResult.Value);
         }
     }
 }
