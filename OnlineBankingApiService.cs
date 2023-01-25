@@ -47,7 +47,7 @@ namespace OnlineBankingApiService
                                     .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
                                     .UseUrls(url);
                         
-                        // Add services to the container.
+                        // Add services to the container. Dependency injection is done here
                         
                         builder.Services.AddControllers();
                         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
