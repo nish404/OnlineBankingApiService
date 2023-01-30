@@ -24,6 +24,8 @@ namespace OnlineBankingApiService.Controllers
         private const string DeleteAccount = "/accounts/{userName}/{id}";
         private const string PutWithdraw = "/accounts/{userName}/{id}/withdraw";
         private const string PutDeposit = "/accounts/{userName}/{id}/deposit";
+        private const string PutTransfer = "/accounts/{userName}/{id}/transfer";
+        private const string GetBalance = "/accounts/{userName}/{id}/balance";
 
         public AccountsController(IAccountLogic accountLogic, IAccountRepository accountRepository, ILogger<AccountsController> logger)
         {
@@ -127,7 +129,7 @@ namespace OnlineBankingApiService.Controllers
         [HttpPut(PutUpdateAccount, Name = nameof(PutUpdateAccountAsync))]
         public async Task<IActionResult> PutUpdateAccountAsync(string id, [FromBody] Account account)
         {
-            if(id != account.Id)
+            if (id != account.Id)
             {
                 return BadRequest("Parameter 'id' does not match id from request body");
             }
@@ -178,7 +180,7 @@ namespace OnlineBankingApiService.Controllers
         [HttpPut(PutWithdraw, Name = nameof(PutWithdraw))]
         public async Task<IActionResult> PutWithdrawAsync(string userName, string id, [FromBody] AccountWithdrawRequest accountWithdrawRequest)
         {
-            if(accountWithdrawRequest == null)
+            if (accountWithdrawRequest == null)
             {
                 return BadRequest("Invalid or missing accountWithdrawRequest");
             }
@@ -227,6 +229,56 @@ namespace OnlineBankingApiService.Controllers
                 }
             }
             return Ok(depositResult.Value);
+        }
+
+        [HttpPut(PutTransfer, Name = nameof(PutTransfer))]
+        public async Task<IActionResult> PutTransferAsync(string userName, string id, [FromBody] AccountTransferRequest accountTransferRequest)
+        {
+            if (accountTransferRequest == null)
+            {
+                return BadRequest("Invalid or missing accountDepositRequest");
+            }
+            Result<Account> transferResult = await _accountLogic.TransferAmount(id, accountTransferRequest.sourceAccountNumber, accountTransferRequest.sourcePin, accountTransferRequest.destinationAccountNumber, accountTransferRequest.amount);
+            if (transferResult.Succeeded == false)
+            {
+                switch (transferResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound(transferResult.Message);
+                    case ResultType.InvalidData:
+                        return BadRequest(transferResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(transferResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(transferResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
+            }
+            return Ok(transferResult.Value);
+        }
+
+        [HttpGet(GetBalance, Name = nameof(GetBalance))]
+        public async Task<IActionResult> GetBalanceAsync(string userName, string id)
+        {
+            Result<Account> getAccountResult = await _accountRepository.GetByIdAsync(id);
+            if (getAccountResult.Succeeded == false)
+            {
+                switch (getAccountResult.ResultType)
+                {
+                    case ResultType.NotFound:
+                        return NotFound();
+                    case ResultType.InvalidData:
+                        return BadRequest(getAccountResult.Message);
+                    case ResultType.DataStoreError:
+                        return Conflict(getAccountResult.Message);
+                    case ResultType.Duplicate:
+                        return Conflict(getAccountResult.Message);
+                    default:
+                        return StatusCode(500);
+                }
+            }
+            return Ok(getAccountResult.Value.Amount);
         }
     }
 }
