@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BankingProject\OnlineBankingProject.Common.csproj" />
+    <ProjectReference Include="..\BankingProject-ServiceFabric\OnlineBankingProject.Common.csproj" />
   </ItemGroup>
 
 </Project>
